@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
@@ -16,5 +16,10 @@ export class AuthController {
   @Post('login')
   login(@Body() user) {
     return this.authService.login(user);
+  }
+
+  @Get('refresh-token')
+  x() {
+    return this.authService.refreshToken();
   }
 }

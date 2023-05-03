@@ -6,6 +6,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
+let myUsername;
+let mySub;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -16,9 +19,15 @@ export class AuthService {
 
   async login(userMsg: User) {
     const payload = { username: userMsg.username, pwd: userMsg.password };
+    myUsername = userMsg.username;
+    mySub = userMsg.password;
     return {
       code: '200',
       access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(payload, {
+        secret: 'refreshKey',
+        expiresIn: '24h',
+      }),
       msg: '登录成功',
     };
   }
@@ -42,6 +51,13 @@ export class AuthService {
     return {
       code: 201,
       msg: '注册成功!',
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async refreshToken() {
+    const payload = { username: myUsername, pwd: mySub };
+    return {
       access_token: this.jwtService.sign(payload),
     };
   }

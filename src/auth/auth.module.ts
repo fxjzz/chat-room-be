@@ -15,7 +15,7 @@ import { AuthController } from './auth.controller';
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       secret: 'secretKey',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '30s' },
     }),
   ],
   controllers: [AuthController],
