@@ -15,31 +15,24 @@ import { Server, Socket } from 'socket.io';
 })
 export class EventsGateway {
   @WebSocketServer() server: Server;
+  private users: { [key: string]: Socket } = {};
 
   @SubscribeMessage('connection')
-  t(
-    @MessageBody()
-    data: {
-      username: string;
-    },
+  async handleConnect(
     @ConnectedSocket() client: Socket,
-  ): WsResponse<unknown> {
-    client.emit('join', async (client) => {
-      client.join(data.username);
-    });
-    return { event: 'join', data: '服务端推送到客户端' };
+    @MessageBody() user: string,
+  ) {
+    this.users[user] = client;
   }
 
   @SubscribeMessage('sendMessage')
   sendMessage(
     @MessageBody()
-    data: {
-      to: string;
-    },
-    @ConnectedSocket() client: Socket,
+    { to }: { to: string },
   ): WsResponse<unknown> {
-    client.broadcast.emit('showMessage');
-    client.emit('showMessage');
+    if (to && this.users[to]) {
+      this.users[to].emit('showMessage');
+    }
     return;
   }
 
